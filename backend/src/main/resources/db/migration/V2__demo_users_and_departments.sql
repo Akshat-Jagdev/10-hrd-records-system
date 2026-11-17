@@ -25,3 +25,8 @@ INSERT INTO departments (id, code, name, type) VALUES
 (6, 'MAINT',  'Maintenance',             'SUPPORT'),
 (7, 'QUAL',   'Quality Control',         'SUPPORT'),
 (8, 'LOGS',   'Logistics and Yard',      'SUPPORT');
+
+-- Explicit-id inserts do not advance IDENTITY sequences; reseed both past
+-- their seeded maxima so application inserts never collide on the PK.
+SELECT setval(pg_get_serial_sequence('users', 'id'), (SELECT MAX(id) FROM users));
+SELECT setval(pg_get_serial_sequence('departments', 'id'), (SELECT MAX(id) FROM departments));

@@ -1872,3 +1872,13 @@ INSERT INTO incentive_earnings (id, employee_id, scheme_id, year, month, achieve
 (1548, 125, 1, 2025, 12, 98.44, 3216.40, 'DRAFT', NULL, NULL),
 (1549, 135, 1, 2025, 12, 98.44, 3508.80, 'DRAFT', NULL, NULL),
 (1550, 145, 1, 2025, 12, 98.44, 3801.20, 'DRAFT', NULL, NULL);
+
+
+-- Explicit-id inserts above do not advance IDENTITY sequences.
+-- Advance each sequence past its seeded maximum (users/departments
+-- sequences are reseeded in V2 for the same reason).
+SELECT setval(pg_get_serial_sequence('employees', 'id'), (SELECT COALESCE(MAX(id), 1) FROM employees));
+SELECT setval(pg_get_serial_sequence('production_records', 'id'), (SELECT COALESCE(MAX(id), 1) FROM production_records));
+SELECT setval(pg_get_serial_sequence('incentive_schemes', 'id'), (SELECT COALESCE(MAX(id), 1) FROM incentive_schemes));
+SELECT setval(pg_get_serial_sequence('scheme_grade_rates', 'id'), (SELECT COALESCE(MAX(id), 1) FROM scheme_grade_rates));
+SELECT setval(pg_get_serial_sequence('incentive_earnings', 'id'), (SELECT COALESCE(MAX(id), 1) FROM incentive_earnings));

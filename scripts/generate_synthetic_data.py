@@ -346,6 +346,25 @@ def emit_earnings(earnings):
     return lines
 
 
+def emit_sequence_reseeds():
+    """Explicit-id INSERTs do not advance IDENTITY sequences; push each past
+    its seeded max so application inserts never collide on the primary key."""
+    lines = [
+        "",
+        "-- Explicit-id inserts above do not advance IDENTITY sequences.",
+        "-- Advance each sequence past its seeded maximum (users/departments",
+        "-- sequences are reseeded in V2 for the same reason).",
+    ]
+    tables = ["employees", "production_records", "incentive_schemes",
+              "scheme_grade_rates", "incentive_earnings"]
+    for table in tables:
+        lines.append(
+            "SELECT setval(pg_get_serial_sequence('%s', 'id'),"
+            " (SELECT COALESCE(MAX(id), 1) FROM %s));" % (table, table))
+    lines.append("")
+    return lines
+
+
 def main():
     employees = build_employees()
     production = build_production_records()
@@ -356,6 +375,7 @@ def main():
     lines += emit_production(production)
     lines += emit_schemes()
     lines += emit_earnings(earnings)
+    lines += emit_sequence_reseeds()
 
     content = "\n".join(lines)
     ascii_only = all(ord(c) < 128 for c in content)
