@@ -1,0 +1,42 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: hrd
+      POSTGRES_USER: hrd
+      POSTGRES_PASSWORD: hrd
+    ports:
+      - "5432:5432"
+    volumes:
+      - hrd-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hrd -d hrd"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build: ./backend
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: hrd
+      DB_USER: hrd
+      DB_PASSWORD: hrd
+      # Demo-only secret. Set a real JWT_SECRET (>= 32 chars) for any real deployment.
+      JWT_SECRET: demo-secret-change-me-0123456789abcdef0123456789abcdef
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+volumes:
+  hrd-db-data:

@@ -1,0 +1,17 @@
+# Build outputs
+backend/target/
+frontend/dist/
+frontend/node_modules/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+# Local env / secrets
+.env
+*.local.yml
+
+# Test artifacts
+backend/.flattened-pom.xml
